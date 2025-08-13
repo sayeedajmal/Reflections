@@ -1,0 +1,21 @@
+patch-package
+--- a/node_modules/react-quill/lib/index.js
++++ b/node_modules/react-quill/lib/index.js
+@@ -520,7 +520,7 @@
+ 	},
+ 
+ 	getEditor: function getEditor() {
+-		return this.editor;
++		return this.quill;
+ 	},
+ 
+ 	getEditorContents: function getEditorContents() {
+@@ -547,7 +547,7 @@
+ 	},
+ 
+ 	getEditorNode: function getEditorNode() {
+-		return this.editorNode;
++		return this.quill.root;
+ 	},
+ 
+ 	/*
