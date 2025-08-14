@@ -20,13 +20,13 @@ export default function Home() {
 
   return (
     <>
-      <section className="h-screen w-full relative flex flex-col items-center justify-center text-center snap-section">
+      <section className="h-full relative w-full flex flex-col items-center justify-center text-center snap-section">
         <Carousel
-          className="w-screen h-screen absolute top-0 left-0 -z-10"
+          className="w-screen h-full absolute top-0 left-0 -z-10"
           plugins={[Autoplay({ delay: 5000, stopOnInteraction: false })]}
           opts={{ loop: true }}
         >
-          <CarouselContent className="w-full h-[95vh]">
+          <CarouselContent className="w-full h-full">
             {carouselImages.map((image, index) => (
               <CarouselItem
                 key={index}
@@ -70,7 +70,7 @@ export default function Home() {
 
       <section
         id="recent-posts"
-        className="w-full flex flex-col items-center justify-center bg-background min-h-screen py-16 snap-section"
+        className="w-full flex flex-col items-center justify-center bg-background min-h-full py-16 snap-section"
       >
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center font-headline mb-12">
@@ -81,8 +81,8 @@ export default function Home() {
             {recentPosts.map((post) => {
               const author = getUser(post.authorId);
               return (
-                <article key={post.id} className="group relative flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-lg p-4 rounded-lg">
-                  <div className="relative w-1/3 aspect-[4/3] rounded-xl overflow-hidden flex-shrink-0">
+                <article key={post.id} className="group relative flex items-center gap-4 transition-all shadow-md duration-300 hover:scale-105 hover:shadow-lg rounded-lg">
+                  <div className="relative w-1/3 aspect-[4/3] rounded-tl-lg rounded-bl-lg overflow-hidden flex-shrink-0">
                     <Image
                       src={post.imageUrl}
                       alt={post.title}

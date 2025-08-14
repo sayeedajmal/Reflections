@@ -37,7 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <div className="main-container h-[90vh]">
+          <div className="main-container h-[94vh]">
             {children}
             <section className="footer-section">
                 <Footer />
