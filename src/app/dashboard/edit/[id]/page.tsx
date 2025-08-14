@@ -44,7 +44,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
     setIsRephrasing(false);
 
     if (result.error) {
-       toast({
+      toast({
         title: "Error",
         description: result.error,
         variant: "destructive",
@@ -57,10 +57,10 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   if (!post) {
     notFound();
   }
-  
+
   return (
     <>
-      <PostPreview 
+      <PostPreview
         content={content}
         open={showPreview}
         onOpenChange={setShowPreview}
@@ -75,38 +75,32 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
           </div>
 
           <div className="space-y-6">
-              <div className="grid gap-3">
-                <Label htmlFor="title" className="text-lg font-semibold sr-only">Title</Label>
-                <Input id="title" defaultValue={post.title} className="text-2xl h-14 font-headline tracking-tight" />
+            <div className="grid gap-3">
+              <Label htmlFor="title" className="text-lg font-semibold sr-only">Title</Label>
+              <Input id="title" defaultValue={post.title} className="text-2xl h-14 font-headline tracking-tight" />
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="content" className="text-lg font-semibold sr-only">Content</Label>
+              <div className="flex justify-end">
+                <Button onClick={handleRephrase} disabled={isRephrasing} variant="outline" size="sm">
+                  {isRephrasing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Rephrasing...
+                    </>
+                  ) : (
+                    <>
+                      <Bot className="mr-2 h-4 w-4" /> Rephrase with AI
+                    </>
+                  )}
+                </Button>
               </div>
-              <div className="grid gap-3">
-                <Label htmlFor="content" className="text-lg font-semibold sr-only">Content</Label>
-                <div className="flex justify-end">
-                  <Button onClick={handleRephrase} disabled={isRephrasing} variant="outline" size="sm">
-                    {isRephrasing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Rephrasing...
-                      </>
-                    ) : (
-                      <>
-                        <Bot className="mr-2 h-4 w-4" /> Rephrase with AI
-                      </>
-                    )}
-                  </Button>
-                </div>
-                {isMounted ? (
-                  <RichTextEditor
-                    ref={editorRef}
-                    value={content}
-                    onChange={setContent}
-                  />
-                ) : (
-                  <div className="space-y-2">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-[400px] w-full" />
-                  </div>
-                )}
-              </div>
+              <RichTextEditor
+                ref={editorRef}
+                value={content}
+                onChange={setContent}
+              />
+
+            </div>
           </div>
         </div>
 

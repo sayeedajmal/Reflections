@@ -36,7 +36,7 @@ export default function Home() {
                   src={image.src}
                   alt={image.alt}
                   fill
-                  className="object-cover brightness-50"
+                  className="object-cover brightness-50 select-none w-screen"
                   data-ai-hint={image.hint}
                   priority={index === 0}
                 />
@@ -46,11 +46,11 @@ export default function Home() {
 
         </Carousel>
 
-        <div className="container mx-auto px-4 py-8 md:py-12">
-          <h1 className="text-4xl md:text-7xl font-bold font-headline">
+        <div className="container mx-auto px-4 py-8 md:py-12 ">
+          <h1 className="text-white text-4xl md:text-7xl font-bold font-headline">
             Reflections
           </h1>
-          <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto">
+          <p className=" text-white mt-4 text-lg md:text-xl max-w-2xl mx-auto">
             Discover insights, stories, and ideas that matter. A space for thoughtful articles on technology, design, and life.
           </p>
           <div className="mt-8">
@@ -62,7 +62,7 @@ export default function Home() {
           </div>
         </div>
 
-        <a href="#recent-posts" className="absolute bottom-12 animate-bounce">
+        <a href="#recent-posts" className=" text-white absolute bottom-12 animate-bounce">
           <ArrowDown className="h-8 w-8" />
           <span className="sr-only">Scroll to recent posts</span>
         </a>
@@ -81,22 +81,22 @@ export default function Home() {
             {recentPosts.map((post) => {
               const author = getUser(post.authorId);
               return (
-                <article key={post.id} className="group relative flex items-center gap-4 transition-all shadow-md duration-300 hover:scale-105 hover:shadow-lg rounded-lg">
+                <article key={post.id} className="p-2 group relative flex items-center gap-4 transition-all shadow-md duration-300 hover:scale-105 hover:shadow-lg rounded-lg">
                   <div className="relative w-1/3 aspect-[4/3] rounded-tl-lg rounded-bl-lg overflow-hidden flex-shrink-0">
                     <Image
-                      src={post.imageUrl}
+                      src={post.imageUrl || "https://images.unsplash.com/photo-1461749280684-dcc9ba868b20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyMHx8Y29kaW5nfGVufDB8fHx8MTcyMTEwOTE5NHww&ixlib=rb-4.1.0&q=80&w=1080"} // Fallback image
                       alt={post.title}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <div className="flex-grow">
-                    <h3 className="text-lg font-bold font-headline leading-tight mb-1">
-                      <Link href={`/posts/${post.id}`}>
+                    <p className="text-base md:text-lg font-bold font-headline leading-tight mb-1">
+                      <Link href={`/posts/${post.id}`} className="block">
                         <span className="absolute inset-0" aria-hidden="true" />
                         {post.title}
                       </Link>
-                    </h3>
+                    </p>
                     <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
                       {post.excerpt}
                     </p>
