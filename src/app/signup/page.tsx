@@ -104,12 +104,6 @@ export default function SignupPage() {
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" name="password" type="password" required />
               </div>
-              {state.error && (
-                <Alert variant="destructive">
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{state.error}</AlertDescription>
-                </Alert>
-              )}
               <SubmitButton />
               <Button variant="outline" className="w-full" type="button">
                 Sign up with Google

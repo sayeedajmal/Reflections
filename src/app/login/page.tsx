@@ -90,12 +90,6 @@ export default function LoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" name="password" type="password" required />
               </div>
-              {state.error && (
-                <Alert variant="destructive">
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{state.error}</AlertDescription>
-                </Alert>
-              )}
               <SubmitButton />
               <Button variant="outline" className="w-full" type="button">
                 Login with Google
