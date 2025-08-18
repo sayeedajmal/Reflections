@@ -22,7 +22,7 @@ export default function Home() {
     <>
       <section className="h-full relative w-full flex flex-col items-center justify-center text-center snap-section">
         <Carousel
-          className="w-screen h-full absolute top-0 left-0 -z-10"
+          className="w-full h-full absolute top-0 left-0 -z-10"
           plugins={[Autoplay({ delay: 5000, stopOnInteraction: false })]}
           opts={{ loop: true }}
         >
