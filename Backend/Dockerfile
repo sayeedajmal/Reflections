@@ -4,9 +4,8 @@ FROM openjdk:11-jre-slim as builder
 # Set the working directory in the container to /app
 WORKDIR /app
 
-# Copy the project files to the current directory in the container
-COPY ./Backend/src /app/src
-COPY ./Backend/pom.xml /app/pom.xml
+# Copy the project files from Backend to the current directory in the container
+COPY ./Backend/ ./app
 
 # Install the Maven dependencies
 RUN mvn clean install -DskipTests
