@@ -1,14 +1,11 @@
-# Stage 1: Build with Maven
-FROM maven:3.9.6-eclipse-temurin-11 as builder
-
+# Stage 1: Build
+FROM maven:3.9.6-eclipse-temurin-11 AS builder
 WORKDIR /app
-COPY ./Backend/ .     # copy your project
+COPY . .                     # copy Backend/ contents
 RUN mvn clean package -DskipTests
 
-# Stage 2: Run JAR in lightweight JRE
+# Stage 2: Runtime
 FROM openjdk:11-jre-slim
-
 WORKDIR /app
 COPY --from=builder /app/target/backend-reflections-0.0.1-SNAPSHOT.jar app.jar
-
 CMD ["java","-jar","app.jar"]
