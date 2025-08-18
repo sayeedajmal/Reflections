@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 
-const API_BASE_URL = process.env.API_BASE_URL;
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8080";
 
 const SignupSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -29,13 +29,11 @@ export async function signupAction(
   prevState: AuthState,
   formData: FormData
 ): Promise<AuthState> {
-  // 1. Validate form data
   const validatedFields = SignupSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
 
   if (!validatedFields.success) {
-    // Return a flat list of errors
     return {
       error: Object.values(validatedFields.error.flatten().fieldErrors)
         .map((errors) => errors.join(", "))
@@ -43,7 +41,6 @@ export async function signupAction(
     };
   }
   
-  // 2. Call the API
   try {
     const response = await fetch(`${API_BASE_URL}/auth/signup`, {
       method: 'POST',
@@ -53,7 +50,7 @@ export async function signupAction(
 
     const result = await response.json();
 
-    if (!response.ok || result.status >= 400) {
+    if (!response.ok || (result.status && result.status >= 400)) {
       return { error: result.message || "An unknown API error occurred." };
     }
 
@@ -61,10 +58,13 @@ export async function signupAction(
 
   } catch (error) {
     console.error("Signup Action Error:", error);
-    if (error instanceof Error) {
-        return { error: error.message };
+    if (error instanceof TypeError && error.message.includes('fetch failed')) {
+      return { error: `Could not connect to the server. Please make sure the backend is running at ${API_BASE_URL}.` };
     }
-    return { error: "An unexpected error occurred." };
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: "An unexpected error occurred during signup." };
   }
 }
 
@@ -73,7 +73,6 @@ export async function loginAction(
   prevState: AuthState,
   formData: FormData
 ): Promise<AuthState> {
-  // 1. Validate form data
   const validatedFields = LoginSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -86,7 +85,6 @@ export async function loginAction(
     };
   }
 
-  // 2. Call the API
   try {
      const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
@@ -96,15 +94,17 @@ export async function loginAction(
 
     const result = await response.json();
 
-    if (!response.ok || result.status >= 400) {
+    if (!response.ok || (result.status && result.status >= 400)) {
       return { error: result.message || "Invalid credentials." };
     }
 
-    // On success, the backend sends the user profile and tokens
     return { message: "Login successful!", data: result.data };
     
   } catch (error) {
-     console.error("Login Action Error:", error);
+    console.error("Login Action Error:", error);
+    if (error instanceof TypeError && error.message.includes('fetch failed')) {
+      return { error: `Could not connect to the server. Please make sure the backend is running at ${API_BASE_URL}.` };
+    }
     if (error instanceof Error) {
         return { error: error.message };
     }
