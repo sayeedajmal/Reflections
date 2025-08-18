@@ -1,5 +1,12 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+
+# Java Spring Boot
+.gradle
+.idea
+.spring-boot-configuration-processor
+build
+target
 # dependencies
 /node_modules
 /.pnp
