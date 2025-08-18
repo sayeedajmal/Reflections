@@ -2,7 +2,6 @@ package com.strong.reflections.Controller;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,9 +16,9 @@ import com.strong.reflections.Utils.ReflectException;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
     private final UserService userService;
 
-    @Autowired
     public AuthController(UserService userService) {
         this.userService = userService;
     }

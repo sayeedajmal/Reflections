@@ -17,7 +17,7 @@ import lombok.Data;
 public class Users implements UserDetails {
 
     @Id
-    private UUID id;
+    private UUID id = java.util.UUID.randomUUID();
     private String firstName;
     private String lastName;
     private String email;
@@ -40,6 +40,14 @@ public class Users implements UserDetails {
     @Override
     public String getPassword() {
         return this.password;
+    }
+
+    public void setCreatedAt() {
+        this.createdAt = java.time.LocalDateTime.now().toString();
+    }
+
+    public void setUpdatedAt() {
+        this.updatedAt = java.time.LocalDateTime.now().toString();
     }
 
     @Override

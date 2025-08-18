@@ -1,13 +1,14 @@
 spring:
   application:
     name: backend-reflections
-
+  main:
+    allow-circular-references: true
   datasource:
     url: jdbc:postgresql://dpg-d2hfgpfdiees73efj63g-a.oregon-postgres.render.com:5432/reflectionsdb
     username: reflections
     password: AG0aSdVhhoXdTHvyrdc3xTNqFkD5FS9J
     driver-class-name: org.postgresql.Driver
-    
+    initialization-mode: always
   jpa:
     hibernate:
       ddl-auto: update

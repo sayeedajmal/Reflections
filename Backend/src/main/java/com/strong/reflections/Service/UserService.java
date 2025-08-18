@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +32,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -66,14 +68,14 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public Map<String, Object> signUp(Users user) throws ReflectException {
-        if (!isEmailAvailable(user.getEmail())) {
-            throw new ReflectException("Email already taken");
+        if (!isEmailAvailable(user.getEmail()) || !isEmailAvailable(user.getUsername().replaceAll("\\s+",""))) {
+            throw new ReflectException("Email or username already taken");
         }
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setAccountNonExpired(true);
         user.setAccountNonLocked(true);
         user.setEnabled(true);
+        user.setRole("AUTHOR");
         user.setCredentialsNonExpired(true);
 
         Users savedUser = userRepository.save(user);
@@ -102,11 +104,11 @@ public class UserService implements UserDetailsService {
         if (!user.isEnabled()) {
             throw new ReflectException("Your account is disabled.", HttpStatus.UNAUTHORIZED);
         }
-
+        
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
         } catch (AuthenticationException e) {
-            throw new ReflectException("Invalid credentials");
+            throw new ReflectException(e.getLocalizedMessage(), HttpStatus.UNAUTHORIZED);
         }
 
         String accessToken = jwtUtil.generateAccessToken(user);
@@ -194,8 +196,8 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

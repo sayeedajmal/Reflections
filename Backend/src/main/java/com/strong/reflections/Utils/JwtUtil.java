@@ -182,9 +182,9 @@ public class JwtUtil {
     private String generateToken(Users user, long expireTime) {
         return Jwts
                 .builder()
-                .setSubject(user.getUsername())
+                .setSubject(user.getEmail())
                 .claim("id", user.getId())
-                .claim("email", user.getEmail())
+                .claim("username", user.getUsername())
                 .claim("firstName", user.getFirstName())
                 .claim("lastName", user.getLastName())
                 .claim("enabled", user.isEnabled())

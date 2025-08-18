@@ -6,7 +6,7 @@
 .idea
 .spring-boot-configuration-processor
 build
-/target/** */
+target
 # dependencies
 /node_modules
 /.pnp
