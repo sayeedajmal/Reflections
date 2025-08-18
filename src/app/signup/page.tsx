@@ -2,7 +2,8 @@
 "use client";
 
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ function SubmitButton() {
 }
 
 export default function SignupPage() {
-  const [state, formAction] = useFormState(signupAction, initialState);
+  const [state, formAction] = useActionState(signupAction, initialState);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -50,6 +51,13 @@ export default function SignupPage() {
         description: state.message,
       });
       router.push("/login");
+    }
+    if (state.error) {
+      toast({
+        title: "Signup Failed",
+        description: state.error,
+        variant: "destructive",
+      });
     }
   }, [state, router, toast]);
 

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState, useFormStatus } from "react-dom";
 import Link from "next/link";
 import { Bot, Lightbulb, Loader2, PenSquare } from "lucide-react";
 import { generateIdeasAction, type ActionState } from "@/app/actions";
@@ -46,7 +46,7 @@ function SubmitButton() {
 }
 
 export function GenerateIdeasForm() {
-  const [state, formAction] = useFormState(generateIdeasAction, initialState);
+  const [state, formAction] = useActionState(generateIdeasAction, initialState);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
