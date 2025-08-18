@@ -58,11 +58,9 @@ export async function signupAction(
 
   } catch (error) {
     console.error("Signup Action Error:", error);
-    if (error instanceof TypeError && error.message.includes('fetch failed')) {
-      return { error: `Could not connect to the server. Please make sure the backend is running at ${API_BASE_URL}.` };
-    }
     if (error instanceof Error) {
-      return { error: error.message };
+        // This will catch network errors (e.g., server is down)
+        return { error: "Could not connect to the authentication service. Please try again later." };
     }
     return { error: "An unexpected error occurred during signup." };
   }
@@ -102,11 +100,9 @@ export async function loginAction(
     
   } catch (error) {
     console.error("Login Action Error:", error);
-    if (error instanceof TypeError && error.message.includes('fetch failed')) {
-      return { error: `Could not connect to the server. Please make sure the backend is running at ${API_BASE_URL}.` };
-    }
     if (error instanceof Error) {
-        return { error: error.message };
+        // This will catch network errors (e.g., server is down)
+        return { error: "Could not connect to the authentication service. Please try again later." };
     }
     return { error: "An unexpected error occurred during login." };
   }
