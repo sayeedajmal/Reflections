@@ -39,7 +39,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <Header />
-            <main className="flex-grow flex flex-col">
+            <main className="h-[94vh]">
               {children}
             </main>
             <Footer />
