@@ -6,6 +6,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/context/auth-context";
 
 export const metadata: Metadata = {
   title: "Reflections",
@@ -27,7 +28,7 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          "h-screen bg-background font-body antialiased flex flex-col"
+          "min-h-screen bg-background font-body antialiased flex flex-col"
         )}
       >
         <ThemeProvider
@@ -36,14 +37,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <div className="main-container h-[94vh]">
-            {children}
-            <section className="footer-section">
-                <Footer />
-            </section>
-          </div>
-          <Toaster />
+          <AuthProvider>
+            <Header />
+            <main className="flex-grow flex flex-col">
+              {children}
+            </main>
+            <Footer />
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import { loginAction, type AuthState } from "@/app/auth/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAuth } from "@/context/auth-context";
 
 
 const initialState: AuthState = {};
@@ -43,15 +44,15 @@ export default function LoginPage() {
   const [state, formAction] = useActionState(loginAction, initialState);
   const { toast } = useToast();
   const router = useRouter();
+  const { login } = useAuth();
 
   useEffect(() => {
-    if (state.message) {
+    if (state.message && state.data) {
       toast({
         title: "Success",
         description: state.message,
       });
-      // In a real app, you would store the token and update auth state
-      console.log("Access Token:", state.data?.accessToken);
+      login(state.data.myProfile, state.data.accessToken, state.data.refreshToken);
       router.push("/dashboard");
     }
     if (state.error) {
@@ -61,7 +62,7 @@ export default function LoginPage() {
         variant: "destructive",
       });
     }
-  }, [state, toast, router]);
+  }, [state, toast, router, login]);
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">

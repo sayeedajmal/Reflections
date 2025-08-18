@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import { signupAction, type AuthState } from "@/app/auth/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAuth } from "@/context/auth-context";
 
 
 const initialState: AuthState = {};
@@ -43,6 +44,7 @@ export default function SignupPage() {
   const [state, formAction] = useActionState(signupAction, initialState);
   const router = useRouter();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   useEffect(() => {
     if (state.message && state.data) {
@@ -50,8 +52,8 @@ export default function SignupPage() {
         title: "Welcome!",
         description: "Your account has been created successfully.",
       });
-       // In a real app, you would store the token and update auth state
-      router.push("/dashboard");
+       login(state.data.myProfile, state.data.accessToken, state.data.refreshToken);
+       router.push("/dashboard");
     }
     if (state.error) {
       toast({
@@ -60,7 +62,7 @@ export default function SignupPage() {
         variant: "destructive",
       });
     }
-  }, [state, router, toast]);
+  }, [state, router, toast, login]);
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">

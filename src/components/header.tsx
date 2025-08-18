@@ -18,13 +18,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useAuth } from "@/context/auth-context";
 
 export function Header() {
-  // --- Placeholder: Replace with real authentication state ---
-  const isLoggedIn = false; 
-  const userName = "Eleanor Vance";
-  // ---------------------------------------------------------
+  const { user, logout } = useAuth();
+  const isLoggedIn = !!user;
+
+  const getInitials = (firstName?: string, lastName?: string) => {
+    if (!firstName || !lastName) return 'U';
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -40,7 +44,7 @@ export function Header() {
             <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
                 <Link
                     href="/dashboard"
-                    className="transition-colors hover:text-foreground/80 text-foreground/60"
+                    className="transition-colors hover:text-foreground/80 text-foreground"
                 >
                     Dashboard
                 </Link>
@@ -87,16 +91,17 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                     <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                     <AvatarImage src={user.avatarUrl || ''} alt={`${user.firstName} ${user.lastName}`} />
+                     <AvatarFallback>{getInitials(user.firstName, user.lastName)}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userName}</p>
+                    <p className="text-sm font-medium leading-none">{user.firstName} {user.lastName}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      user@example.com
+                      {user.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -105,20 +110,20 @@ export function Header() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <nav className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <Button asChild>
                 <Link href="/login">Login</Link>
               </Button>
               <Button variant="outline" asChild>
                 <Link href="/signup">Sign Up</Link>
               </Button>
-            </nav>
+            </div>
           )}
         </div>
       </div>
