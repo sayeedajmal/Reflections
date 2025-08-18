@@ -45,12 +45,13 @@ export default function SignupPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (state.message) {
+    if (state.message && state.data) {
       toast({
-        title: "Success!",
-        description: state.message,
+        title: "Welcome!",
+        description: "Your account has been created successfully.",
       });
-      router.push("/login");
+       // In a real app, you would store the token and update auth state
+      router.push("/dashboard");
     }
     if (state.error) {
       toast({
