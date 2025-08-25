@@ -3,6 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { setCookie, getCookie, deleteCookie } from 'cookies-next';
 
 // Define the shape of the user object based on your backend response
 interface User {
@@ -35,39 +36,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem('user');
-      const storedAccess = localStorage.getItem('accessToken');
-      const storedRefresh = localStorage.getItem('refreshToken');
+      const storedUserCookie = getCookie('user');
+      const storedAccess = getCookie('accessToken');
+      const storedRefresh = getCookie('refreshToken');
+      
+      const storedUser = storedUserCookie ? JSON.parse(decodeURIComponent(storedUserCookie)) : null;
 
       if (storedUser && storedAccess && storedRefresh) {
-        setUser(JSON.parse(storedUser));
-        setAccessToken(storedAccess);
-        setRefreshToken(storedRefresh);
+        setUser(storedUser);
+        setAccessToken(storedAccess as string);
+        setRefreshToken(storedRefresh as string);
       }
     } catch (error) {
-      console.error("Failed to parse auth data from localStorage", error);
+      console.error("Failed to parse auth data from cookies", error);
       // Clear potentially corrupted data
-      localStorage.removeItem('user');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      deleteCookie('user');
+      deleteCookie('accessToken');
+      deleteCookie('refreshToken');
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   const login = (userData: User, access: string, refresh: string) => {
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('accessToken', access);
-    localStorage.setItem('refreshToken', refresh);
+    const cookieOptions = { secure: true, sameSite: 'strict', maxAge: 60 * 60 * 24 * 7 };
+    const userString = encodeURIComponent(JSON.stringify(userData));
+    
+    setCookie('user', userString, cookieOptions);
+    setCookie('accessToken', access, cookieOptions);
+    setCookie('refreshToken', refresh, cookieOptions);
+
     setUser(userData);
     setAccessToken(access);
     setRefreshToken(refresh);
   };
 
   const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    deleteCookie('user');
+    deleteCookie('accessToken');
+    deleteCookie('refreshToken');
     setUser(null);
     setAccessToken(null);
     setRefreshToken(null);

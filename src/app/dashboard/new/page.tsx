@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useFormState, useFormStatus } from 'react-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,15 +14,56 @@ import { rephraseTextAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { PostPreview } from '@/components/post-preview';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { createPost, PostActionState } from '../actions';
+import { useAuth } from '@/context/auth-context';
+
+const initialState: PostActionState = {};
+
+function SubmitButton({status}: {status: 'PUBLISHED' | 'DRAFT'}) {
+  const { pending } = useFormStatus();
+  const isPublishing = pending && document.activeElement?.getAttribute('name') === 'status' && document.activeElement?.getAttribute('value') === 'PUBLISHED';
+  const isSaving = pending && document.activeElement?.getAttribute('name') === 'status' && document.activeElement?.getAttribute('value') === 'DRAFT';
+
+  if (status === 'PUBLISHED') {
+      return (
+          <Button type="submit" name="status" value="PUBLISHED" size="lg" className="w-full" disabled={pending}>
+              {isPublishing ? <><Loader2 className="mr-2 animate-spin" /> Publishing...</> : <><Send className="mr-2" /> Publish</>}
+          </Button>
+      );
+  }
+
+  return (
+       <Button type="submit" name="status" value="DRAFT" variant="outline" size="lg" className="w-full" disabled={pending}>
+           {isSaving ? <><Loader2 className="mr-2 animate-spin" /> Saving...</> : <><Save className="mr-2" /> Save Draft</>}
+       </Button>
+  );
+}
+
 
 function NewPostForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const { user, accessToken } = useAuth();
+  
+  const createPostWithToken = createPost.bind(null, accessToken || "", user);
+  const [state, formAction] = useFormState(createPostWithToken, initialState);
+  
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const editorRef = useRef<RichTextEditorRef>(null);
   const [isRephrasing, setIsRephrasing] = useState(false);
-  const { toast } = useToast();
   const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    if (state.message) {
+      toast({ title: "Success", description: state.message });
+      router.push('/dashboard');
+    }
+    if (state.error) {
+       toast({ title: "Error", description: state.error, variant: 'destructive' });
+    }
+  }, [state, toast, router]);
 
    useEffect(() => {
     const initialTitle = searchParams.get('title');
@@ -30,7 +72,6 @@ function NewPostForm() {
       setTitle(decodeURIComponent(initialTitle));
     }
     if (initialContent) {
-      // Replace newlines with paragraph tags for better HTML formatting
       const formattedContent = decodeURIComponent(initialContent)
         .split('\n')
         .filter(p => p.trim() !== '')
@@ -73,7 +114,10 @@ function NewPostForm() {
         open={showPreview}
         onOpenChange={setShowPreview}
       />
-      <div className="flex flex-col h-full">
+      <form action={formAction} className="flex flex-col h-full">
+         {/* Hidden input for content */}
+        <input type="hidden" name="content" value={content} />
+
         <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-left mb-8">
                 <h1 className="text-4xl font-bold font-headline">Create New Post</h1>
@@ -83,16 +127,17 @@ function NewPostForm() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                {/* Main Content */}
                 <div className="lg:col-span-2 space-y-6">
                      <div className="grid gap-3">
                         <Label htmlFor="title" className="text-lg font-semibold sr-only">Title</Label>
                         <Input
                             id="title"
+                            name="title"
                             placeholder="Post Title"
                             className="text-3xl h-16 font-headline tracking-tight"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
+                            required
                         />
                     </div>
                     <div className="grid gap-3">
@@ -106,19 +151,14 @@ function NewPostForm() {
                     </div>
                 </div>
 
-                {/* Sidebar */}
                 <aside className="space-y-6 sticky top-24">
                      <Card>
                         <CardHeader>
                             <CardTitle>Publish</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <Button size="lg" className="w-full">
-                               <Send className="mr-2"/> Publish
-                            </Button>
-                             <Button variant="outline" size="lg" className="w-full">
-                               <Save className="mr-2"/> Save Draft
-                            </Button>
+                           <SubmitButton status="PUBLISHED" />
+                           <SubmitButton status="DRAFT" />
                         </CardContent>
                     </Card>
                     <Card>
@@ -126,7 +166,7 @@ function NewPostForm() {
                             <CardTitle>AI Tools</CardTitle>
                         </CardHeader>
                         <CardContent>
-                             <Button onClick={handleRephrase} disabled={isRephrasing} variant="outline" className="w-full">
+                             <Button onClick={handleRephrase} disabled={isRephrasing} variant="outline" className="w-full" type="button">
                                 {isRephrasing ? (
                                     <>
                                     <Loader2 className="mr-2 animate-spin" /> Rephrasing...
@@ -144,7 +184,7 @@ function NewPostForm() {
                             <CardTitle>Preview</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Button variant="outline" className="w-full" onClick={() => setShowPreview(true)}>
+                            <Button variant="outline" className="w-full" onClick={() => setShowPreview(true)} type="button">
                                 <Eye className="mr-2" />
                                 View Post Preview
                             </Button>
@@ -153,7 +193,7 @@ function NewPostForm() {
                 </aside>
             </div>
         </div>
-      </div>
+      </form>
     </>
   );
 }
