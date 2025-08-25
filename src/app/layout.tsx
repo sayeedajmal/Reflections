@@ -39,7 +39,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <Header />
-            <main className="h-[94vh]">
+            <main className="flex-1">
               {children}
             </main>
             <Footer />

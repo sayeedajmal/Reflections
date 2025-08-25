@@ -66,8 +66,8 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
         onOpenChange={setShowPreview}
       />
       <div className="flex flex-col h-full">
-        <div className="mx-auto max-w-4xl space-y-8 px-4 sm:px-6 lg:px-8 flex-grow">
-          <div className="text-center pt-8">
+        <div className="container mx-auto max-w-4xl space-y-8 px-4 sm:px-6 lg:px-8 flex-grow py-8">
+          <div className="text-center">
             <h1 className="text-4xl font-bold font-headline">Edit Post</h1>
             <p className="text-muted-foreground mt-2">
               Refine your article and get it ready for your audience.
@@ -104,7 +104,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 border-t pt-6 mt-8 sticky bottom-0 bg-background py-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 border-t pt-6 sticky bottom-0 bg-background py-4">
           <Button variant="outline" size="lg" onClick={() => setShowPreview(true)}>
             <Eye className="mr-2 h-4 w-4" />
             Preview

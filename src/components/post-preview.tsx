@@ -28,7 +28,7 @@ export function PostPreview({ content, open, onOpenChange }: PostPreviewProps) {
         </DialogHeader>
         <ScrollArea className="h-full w-full">
             <div
-                className="prose prose-lg dark:prose-invert max-w-none p-4"
+                className="prose prose-lg dark:prose-invert max-w-none p-4 ql-editor"
                 dangerouslySetInnerHTML={{ __html: content }}
             />
         </ScrollArea>

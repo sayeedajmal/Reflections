@@ -52,22 +52,23 @@ export default function PostPage({ params }: { params: { id: string } }) {
           )}
         </div>
 
-        <div className="relative w-full h-96 rounded-lg overflow-hidden mb-8">
-          <Image
-            src={post.imageUrl}
-            alt={post.title}
-            fill
-            className="object-cover"
-            priority
-            data-ai-hint="blog post image"
-          />
-        </div>
+        {post.imageUrl && (
+          <div className="relative w-full h-96 rounded-lg overflow-hidden mb-8">
+            <Image
+              src={post.imageUrl}
+              alt={post.title}
+              fill
+              className="object-cover"
+              priority
+              data-ai-hint="blog post image"
+            />
+          </div>
+        )}
 
         <div
-          className="prose prose-lg dark:prose-invert max-w-none text-foreground/90"
-        >
-          {post.content}
-        </div>
+          className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 ql-editor"
+           dangerouslySetInnerHTML={{ __html: post.content }}
+        />
       </article>
 
       <Separator className="my-12" />
