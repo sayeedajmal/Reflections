@@ -32,22 +32,19 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
       replaceSelection: (htmlToInsert: string) => {
         const quill = quillInstance.current;
         if (!quill) return;
+        
         const range = quill.getSelection();
+        if (!range) return;
 
-        if (range) {
-          // Get the full content *before* the insertion point
-          const contentBefore = quill.root.innerHTML.substring(0, range.index);
-          
-          // Get the full content *after* the selection that will be replaced
-          const contentAfter = quill.root.innerHTML.substring(range.index + range.length);
-          
-          // Construct the new, complete HTML string
-          const newContent = contentBefore + htmlToInsert + contentAfter;
-          
-          // Call the parent's onChange with the complete new state.
-          // This will trigger a re-render and update the editor via the `value` prop.
-          onChange(newContent);
-        }
+        // Erase the selected content
+        quill.deleteText(range.index, range.length, 'user');
+        
+        // Insert the new HTML, converting it to Quill's Delta format
+        // This will correctly render the HTML tags
+        quill.clipboard.dangerouslyPasteHTML(range.index, htmlToInsert, 'user');
+
+        // Move cursor to the end of the inserted content
+        quill.setSelection(range.index + htmlToInsert.length, 0, 'user');
       }
     }));
 
@@ -67,6 +64,12 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           placeholder,
         });
         
+        const editor = quillInstance.current.getModule('toolbar').container.nextSibling as HTMLElement;
+        editor.style.minHeight = '400px';
+        editor.style.maxHeight = '60vh';
+        editor.style.overflowY = 'auto';
+
+
         quillInstance.current.on('text-change', (delta, oldDelta, source) => {
           if (source === 'user') {
             const currentContent = quillInstance.current?.root.innerHTML || '';
@@ -90,13 +93,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
     // Handle external value changes from parent
     useEffect(() => {
         if (quillInstance.current && value !== quillInstance.current.root.innerHTML) {
-            // Store cursor position
             const range = quillInstance.current.getSelection();
-            
-            // Update contents
             quillInstance.current.root.innerHTML = value;
-
-            // Restore cursor position
             if (range) {
                 // A short timeout is sometimes needed to allow the DOM to update
                 setTimeout(() => quillInstance.current?.setSelection(range.index, range.length), 0);
@@ -106,7 +104,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
     return (
       <div className="bg-card text-card-foreground rounded-md border">
-          <div ref={editorRef} style={{minHeight: '400px'}} />
+          <div ref={editorRef} />
       </div>
     );
   }
