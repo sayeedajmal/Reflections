@@ -12,11 +12,11 @@ import { Bot, Eye, Loader2, Save, Send, Trash } from 'lucide-react';
 import { rephraseTextAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { PostPreview } from '@/components/post-preview';
-import { getPost, updatePost, type PostActionState } from '../actions';
+import { getPost, updatePost, type PostActionState } from '../../actions';
 import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DeletePostButton } from '../delete-post-button';
+import { DeletePostButton } from '../../delete-post-button';
 
 const initialState: PostActionState = {};
 
