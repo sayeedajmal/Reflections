@@ -34,11 +34,13 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         if (!quill) return;
         const range = quill.getSelection();
         if (range) {
-          // Convert the HTML string into Quill's Delta format
-          const delta = quill.clipboard.convert(html);
-          // Replace the selected text with the new, formatted content
+          const delta = quill.clipboard.convert(html as any);
           quill.deleteText(range.index, range.length, 'silent');
-          quill.updateContents(delta, 'user');
+          quill.updateContents(delta, 'silent');
+          // Explicitly call onChange with the new full content
+          // to ensure parent state is in sync before a re-render.
+          const newContent = quill.root.innerHTML;
+          onChange(newContent);
         }
       }
     }));
@@ -83,7 +85,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
     // Handle external value changes
     useEffect(() => {
       if (quillInstance.current && value !== quillInstance.current.root.innerHTML) {
-          const delta = quillInstance.current.clipboard.convert(value);
+          const delta = quillInstance.current.clipboard.convert(value as any);
           quillInstance.current.setContents(delta, 'silent');
       }
     }, [value]);
