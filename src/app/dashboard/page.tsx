@@ -91,7 +91,11 @@ export default async function DashboardPage() {
                 {posts && posts.length > 0 ? (
                   posts.map((post: any) => (
                   <TableRow key={post.id}>
-                    <TableCell className="font-medium pl-4 sm:pl-6 lg:pl-8">{post.title}</TableCell>
+                    <TableCell className="font-medium pl-4 sm:pl-6 lg:pl-8">
+                      <Link href={`/posts/${post.id}`} className="hover:underline">
+                        {post.title}
+                      </Link>
+                    </TableCell>
                     <TableCell>
                       <Badge variant={post.status === 'PUBLISHED' ? 'default': 'secondary'}>{post.status}</Badge>
                     </TableCell>
