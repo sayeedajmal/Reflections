@@ -29,17 +29,23 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         const text = quill.getText(range.index, range.length);
         return { text, index: range.index, length: range.length };
       },
-      replaceSelection: (html: string) => {
+      replaceSelection: (htmlToInsert: string) => {
         const quill = quillInstance.current;
         if (!quill) return;
         const range = quill.getSelection();
+
         if (range) {
-          const delta = quill.clipboard.convert(html as any);
-          quill.deleteText(range.index, range.length, 'silent');
-          quill.updateContents(delta, 'silent');
-          // Explicitly call onChange with the new full content
-          // to ensure parent state is in sync before a re-render.
-          const newContent = quill.root.innerHTML;
+          // Get the full content *before* the insertion point
+          const contentBefore = quill.root.innerHTML.substring(0, range.index);
+          
+          // Get the full content *after* the selection that will be replaced
+          const contentAfter = quill.root.innerHTML.substring(range.index + range.length);
+          
+          // Construct the new, complete HTML string
+          const newContent = contentBefore + htmlToInsert + contentAfter;
+          
+          // Call the parent's onChange with the complete new state.
+          // This will trigger a re-render and update the editor via the `value` prop.
           onChange(newContent);
         }
       }
@@ -60,15 +66,14 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           },
           placeholder,
         });
-
-        // Set initial value
-        if(value) {
-          quillInstance.current.root.innerHTML = value;
-        }
         
         quillInstance.current.on('text-change', (delta, oldDelta, source) => {
           if (source === 'user') {
-            onChange(quillInstance.current?.root.innerHTML || '');
+            const currentContent = quillInstance.current?.root.innerHTML || '';
+            // Prevent infinite loops by checking if the content has actually changed
+            if (value !== currentContent) {
+              onChange(currentContent);
+            }
           }
         });
       }
@@ -82,12 +87,21 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [placeholder]);
 
-    // Handle external value changes
+    // Handle external value changes from parent
     useEffect(() => {
-      if (quillInstance.current && value !== quillInstance.current.root.innerHTML) {
-          const delta = quillInstance.current.clipboard.convert(value as any);
-          quillInstance.current.setContents(delta, 'silent');
-      }
+        if (quillInstance.current && value !== quillInstance.current.root.innerHTML) {
+            // Store cursor position
+            const range = quillInstance.current.getSelection();
+            
+            // Update contents
+            quillInstance.current.root.innerHTML = value;
+
+            // Restore cursor position
+            if (range) {
+                // A short timeout is sometimes needed to allow the DOM to update
+                setTimeout(() => quillInstance.current?.setSelection(range.index, range.length), 0);
+            }
+        }
     }, [value]);
 
     return (
