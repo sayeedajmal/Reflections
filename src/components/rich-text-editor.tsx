@@ -42,6 +42,9 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         // Insert the new HTML, converting it to Quill's Delta format
         // This will correctly render the HTML tags
         quill.clipboard.dangerouslyPasteHTML(range.index, htmlToInsert, 'user');
+        
+        const editorContent = quill.root.innerHTML;
+        onChange(editorContent);
 
         // Move cursor to the end of the inserted content
         quill.setSelection(range.index + htmlToInsert.length, 0, 'user');
@@ -88,7 +91,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         }
       };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [placeholder]);
+    }, [placeholder, onChange]);
 
     // Handle external value changes from parent
     useEffect(() => {
