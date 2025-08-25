@@ -1,6 +1,7 @@
 
 import Link from "next/link";
-import { PlusCircle, MoreHorizontal, Bot } from "lucide-react";
+import { PlusCircle, Bot } from "lucide-react";
+import { cookies } from "next/headers";
 import {
   Table,
   TableBody,
@@ -10,13 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Card,
   CardContent,
   CardDescription,
@@ -25,19 +19,36 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getPosts } from "@/lib/data";
+import { getPostsByAuthor } from "./actions";
+import { DeletePostButton } from "./delete-post-button";
 
-export default function DashboardPage() {
-  // In a real app, you'd fetch posts for the logged-in user
-  const userPosts = getPosts();
+// Helper function to safely parse JSON
+const safeJsonParse = (str: string) => {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return null;
+  }
+};
+
+
+export default async function DashboardPage() {
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
+  const userCookie = cookieStore.get('user')?.value;
+
+  const user = userCookie ? safeJsonParse(decodeURIComponent(userCookie)) : null;
+  
+  // Fetch posts only if we have a user and a token
+  const posts = user && accessToken ? await getPostsByAuthor(user.id, accessToken) : [];
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8">
         <div>
-          <h1 className="text-3xl font-bold font-headline">My Posts</h1>
+          <h1 className="text-3xl font-bold font-headline">Blog Posts</h1>
           <p className="text-muted-foreground">
-            Here you can manage all your blog posts.
+            Manage all articles on your blog.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -68,45 +79,33 @@ export default function DashboardPage() {
                 <TableRow>
                   <TableHead className="min-w-[250px] w-[40%] pl-4 sm:pl-6 lg:pl-8">Title</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="hidden md:table-cell">Published Date</TableHead>
-                  <TableHead className="pr-4 sm:pr-6 lg:pr-8">
-                    <span className="sr-only">Actions</span>
+                  <TableHead className="hidden md:table-cell">Last Updated</TableHead>
+                  <TableHead className="pr-4 sm:pr-6 lg:pr-8 text-right">
+                    Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {userPosts.map((post) => (
+                {posts && posts.length > 0 ? (
+                  posts.map((post: any) => (
                   <TableRow key={post.id}>
                     <TableCell className="font-medium pl-4 sm:pl-6 lg:pl-8">{post.title}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">Published</Badge>
+                      <Badge variant={post.status === 'PUBLISHED' ? 'default': 'secondary'}>{post.status}</Badge>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {new Date(post.publishedAt).toLocaleDateString()}
+                      {new Date(post.updatedAt).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="pr-4 sm:pr-6 lg:pr-8">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem asChild>
-                             <Link href={`/dashboard/edit/${post.id}`}>Edit</Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <TableCell className="pr-4 sm:pr-6 lg:pr-8 text-right">
+                      <DeletePostButton postId={post.id} />
                     </TableCell>
                   </TableRow>
-                ))}
+                ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center h-24">No posts found.</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
