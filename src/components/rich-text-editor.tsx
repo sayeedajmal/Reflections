@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
@@ -11,7 +12,7 @@ interface RichTextEditorProps {
 
 export interface RichTextEditorRef {
   getSelection: () => { text: string; index: number; length: number } | null;
-  replaceSelection: (text: string) => void;
+  replaceSelection: (html: string) => void;
 }
 
 export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
@@ -28,13 +29,16 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         const text = quill.getText(range.index, range.length);
         return { text, index: range.index, length: range.length };
       },
-      replaceSelection: (text: string) => {
+      replaceSelection: (html: string) => {
         const quill = quillInstance.current;
         if (!quill) return;
         const range = quill.getSelection();
         if (range) {
-           quill.deleteText(range.index, range.length);
-           quill.insertText(range.index, text, 'user');
+          // Convert the HTML string into Quill's Delta format
+          const delta = quill.clipboard.convert(html);
+          // Replace the selected text with the new, formatted content
+          quill.deleteText(range.index, range.length, 'silent');
+          quill.updateContents(delta, 'user');
         }
       }
     }));
