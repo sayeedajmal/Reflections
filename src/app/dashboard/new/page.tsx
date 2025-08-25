@@ -8,10 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor, RichTextEditorRef } from '@/components/rich-text-editor';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Bot, Eye, Loader2 } from 'lucide-react';
+import { Bot, Eye, Loader2, Save, Send } from 'lucide-react';
 import { rephraseTextAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { PostPreview } from '@/components/post-preview';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 function NewPostForm() {
   const searchParams = useSearchParams();
@@ -32,7 +33,8 @@ function NewPostForm() {
       // Replace newlines with paragraph tags for better HTML formatting
       const formattedContent = decodeURIComponent(initialContent)
         .split('\n')
-        .map(p => `<p>${p}</p>`)
+        .filter(p => p.trim() !== '')
+        .map(p => `<p>${p.trim()}</p>`)
         .join('');
       setContent(formattedContent);
     }
@@ -72,57 +74,84 @@ function NewPostForm() {
         onOpenChange={setShowPreview}
       />
       <div className="flex flex-col h-full">
-        <div className='flex-grow flex flex-col justify-center mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8'>
-          <div className="text-center mb-8 pt-8">
-            <h1 className="text-4xl font-bold font-headline">Create New Post</h1>
-            <p className="text-muted-foreground mt-2">
-              Let your ideas flow. Fill in the details below to get started.
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            <div className="grid gap-3">
-              <Label htmlFor="title" className="text-lg font-semibold sr-only">Title</Label>
-              <Input
-                id="title"
-                placeholder="Post Title"
-                className="text-2xl h-14 font-headline tracking-tight"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+        <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-left mb-8">
+                <h1 className="text-4xl font-bold font-headline">Create New Post</h1>
+                <p className="text-muted-foreground mt-2">
+                Let your ideas flow. Fill in the details below to get started.
+                </p>
             </div>
-            <div className="grid gap-3">
-              <Label htmlFor="content" className="text-lg font-semibold sr-only">Content</Label>
-              <div className="flex justify-end">
-                <Button onClick={handleRephrase} disabled={isRephrasing} variant="outline" size="sm">
-                  {isRephrasing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Rephrasing...
-                    </>
-                  ) : (
-                    <>
-                      <Bot className="mr-2 h-4 w-4" /> Rephrase with AI
-                    </>
-                  )}
-                </Button>
-              </div>
-                 <RichTextEditor
-                    ref={editorRef}
-                    value={content}
-                    onChange={setContent}
-                    placeholder="Start writing your amazing story here..."
-                  />
-            </div>
-          </div>
-        </div>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 border-t pt-6 mt-8 bg-background sticky bottom-0 py-4">
-          <Button variant="outline" size="lg" onClick={() => setShowPreview(true)}>
-            <Eye className="mr-2 h-4 w-4" />
-            Preview
-          </Button>
-          <Button variant="outline" size="lg">Save Draft</Button>
-          <Button size="lg">Publish</Button>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                {/* Main Content */}
+                <div className="lg:col-span-2 space-y-6">
+                     <div className="grid gap-3">
+                        <Label htmlFor="title" className="text-lg font-semibold sr-only">Title</Label>
+                        <Input
+                            id="title"
+                            placeholder="Post Title"
+                            className="text-3xl h-16 font-headline tracking-tight"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+                    </div>
+                    <div className="grid gap-3">
+                        <Label htmlFor="content" className="text-lg font-semibold sr-only">Content</Label>
+                        <RichTextEditor
+                            ref={editorRef}
+                            value={content}
+                            onChange={setContent}
+                            placeholder="Start writing your amazing story here..."
+                        />
+                    </div>
+                </div>
+
+                {/* Sidebar */}
+                <aside className="space-y-6 sticky top-24">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Publish</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Button size="lg" className="w-full">
+                               <Send className="mr-2"/> Publish
+                            </Button>
+                             <Button variant="outline" size="lg" className="w-full">
+                               <Save className="mr-2"/> Save Draft
+                            </Button>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>AI Tools</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <Button onClick={handleRephrase} disabled={isRephrasing} variant="outline" className="w-full">
+                                {isRephrasing ? (
+                                    <>
+                                    <Loader2 className="mr-2 animate-spin" /> Rephrasing...
+                                    </>
+                                ) : (
+                                    <>
+                                    <Bot className="mr-2" /> Rephrase with AI
+                                    </>
+                                )}
+                            </Button>
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Preview</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Button variant="outline" className="w-full" onClick={() => setShowPreview(true)}>
+                                <Eye className="mr-2" />
+                                View Post Preview
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </aside>
+            </div>
         </div>
       </div>
     </>
@@ -132,12 +161,18 @@ function NewPostForm() {
 export default function NewPostPage() {
   return (
     <Suspense fallback={
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:p-8 space-y-6">
-          <Skeleton className="h-14 w-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-24 ml-auto" />
-            <Skeleton className="h-[400px] w-full" />
-          </div>
+      <div className="container mx-auto px-4 sm:px-6 lg:p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-[450px] w-full" />
+            </div>
+            <div className="space-y-6">
+                <Skeleton className="h-40 w-full" />
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
+            </div>
+        </div>
       </div>
     }>
       <NewPostForm />
