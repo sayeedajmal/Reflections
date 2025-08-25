@@ -56,31 +56,46 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        
+        System.out.println("START: JwtRequestFilter");
+
         final String authHeader = request.getHeader("Authorization");
+
+        System.out.println("Auth header: " + authHeader);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
 
+            System.out.println("JWT: " + jwt);
+
             try {
                 String email = jwtUtil.extractUserEmail(jwt);
+                System.out.println("Email: " + email);
+
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     Users userDetails = (Users) userService.loadUserByUsername(email);
+
+                    System.out.println("User details: " + userDetails);
+
                     if (userDetails != null && jwtUtil.isTokenValid(jwt, userDetails)) {
                         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                                 userDetails, null,
                                 List.of(new SimpleGrantedAuthority("ROLE_" + userDetails.getRole())));
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+                        System.out.println("Authentication token: " + authenticationToken);
                     }
                 }
             } catch (ReflectException e) {
                 response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
                 response.getWriter().write(e.getMessage());
+                System.out.println("Error: " + e.getMessage());
                 return;
             }
-
         }
+
+        System.out.println("END: JwtRequestFilter");
+
         chain.doFilter(request, response);
     }
 }

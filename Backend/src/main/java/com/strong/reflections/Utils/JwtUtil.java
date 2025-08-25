@@ -45,11 +45,11 @@ public class JwtUtil {
      * @throws ReflectException if the token is invalid or has expired.
      */
     public String extractUserEmail(String token) throws ReflectException {
-        return extractClaim(token, claims -> claims.get("email", String.class));
+        return extractClaim(token, Claims::getSubject);
     }
 
     public String extractUserName(String token) throws ReflectException {
-        return extractClaim(token, Claims::getSubject);
+        return extractClaim(token, claims -> claims.get("username", String.class));
     }
 
     /**
