@@ -11,18 +11,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -35,12 +34,13 @@ public class BlogPost {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private UUID id = java.util.UUID.randomUUID();
 
+    @NotBlank(message = "Title is mandatory")
     @Column(nullable = false)
     private String title;
 
+    @NotBlank(message = "Content is mandatory")
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
@@ -59,9 +59,19 @@ public class BlogPost {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @NotNull(message = "Status is mandatory")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PostStatus status = PostStatus.DRAFT;
 
     private String featuredImageUrl;
+
+    public void setCreatedAt() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public void setUpdatedAt() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
