@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getPostsByAuthor } from "./actions";
 import { DeletePostButton } from "./delete-post-button";
+import { RefreshButton } from "./refresh-button";
 
 // Helper function to safely parse JSON
 const safeJsonParse = (str: string) => {
@@ -52,6 +53,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+           <RefreshButton />
            <Button asChild className="w-full sm:w-auto">
             <Link href="/dashboard/generate">
               <Bot className="mr-2 h-4 w-4" /> Generate Ideas
