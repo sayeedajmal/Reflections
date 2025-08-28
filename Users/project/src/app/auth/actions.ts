@@ -51,17 +51,17 @@ export async function signupAction(
 
     const result = await response.json();
 
-    if (!response.ok || (result.status && result.status >= 400)) {
+    if (!response.ok) {
       return { error: result.message || "An unknown API error occurred." };
     }
     
     // Set cookies upon successful signup
     const { myProfile, accessToken, refreshToken } = result.data;
-    const cookieOptions = { req: cookies(), res: undefined, httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' as const, maxAge: 60 * 60 * 24 * 7 };
+    const cookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' as const, maxAge: 60 * 60 * 24 * 7 };
     
-    setCookie('user', JSON.stringify(myProfile), cookieOptions);
-    setCookie('accessToken', accessToken, cookieOptions);
-    setCookie('refreshToken', refreshToken, cookieOptions);
+    cookies().set('user', JSON.stringify(myProfile), cookieOptions);
+    cookies().set('accessToken', accessToken, cookieOptions);
+    cookies().set('refreshToken', refreshToken, cookieOptions);
 
     return { message: result.message, data: result.data };
 
@@ -99,18 +99,18 @@ export async function loginAction(
     });
 
     const result = await response.json();
-
-    if (!response.ok || (result.status && result.status >= 400)) {
+    
+    if (!response.ok) {
       return { error: result.message || "Invalid credentials." };
     }
     
     // Set cookies upon successful login
     const { myProfile, accessToken, refreshToken } = result.data;
-    const cookieOptions = { req: cookies(), res: undefined, httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' as const, maxAge: 60 * 60 * 24 * 7 };
+    const cookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' as const, maxAge: 60 * 60 * 24 * 7 };
     
-    setCookie('user', JSON.stringify(myProfile), cookieOptions);
-    setCookie('accessToken', accessToken, cookieOptions);
-    setCookie('refreshToken', refreshToken, cookieOptions);
+    cookies().set('user', JSON.stringify(myProfile), cookieOptions);
+    cookies().set('accessToken', accessToken, cookieOptions);
+    cookies().set('refreshToken', refreshToken, cookieOptions);
 
     return { message: "Login successful!", data: result.data };
     
