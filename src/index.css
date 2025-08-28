@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Futuristic Dark Theme Colors */
+    --background: 220 13% 9%;
+    --foreground: 220 9% 95%;
+
+    --card: 220 13% 11%;
+    --card-foreground: 220 9% 95%;
+
+    --popover: 220 13% 11%;
+    --popover-foreground: 220 9% 95%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 220 13% 9%;
+
+    --secondary: 220 13% 15%;
+    --secondary-foreground: 220 9% 85%;
+
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 65%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 220 13% 9%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 220 9% 95%;
+
+    --border: 220 13% 20%;
+    --input: 220 13% 15%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+
+    /* Glassmorphism Effects */
+    --glass-bg: 220 13% 11% / 0.8;
+    --glass-border: 220 9% 95% / 0.1;
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+    /* Custom Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220 13% 15%), hsl(220 13% 20%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 13% 9% / 0.8), hsl(220 13% 9% / 0.6));
+
+    /* Typography */
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .light {
+    --background: 220 20% 98%;
+    --foreground: 220 13% 15%;
+
+    --card: 220 20% 100%;
+    --card-foreground: 220 13% 15%;
+
+    --popover: 220 20% 100%;
+    --popover-foreground: 220 13% 15%;
+
+    --primary: 217 91% 55%;
+    --primary-foreground: 220 20% 98%;
+
+    --secondary: 220 20% 95%;
+    --secondary-foreground: 220 13% 15%;
+
+    --muted: 220 20% 95%;
+    --muted-foreground: 220 13% 45%;
+
+    --accent: 38 92% 45%;
+    --accent-foreground: 220 20% 98%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 220 20% 98%;
+
+    --border: 220 20% 90%;
+    --input: 220 20% 95%;
+    --ring: 217 91% 55%;
+
+    --glass-bg: 220 20% 100% / 0.8;
+    --glass-border: 220 13% 15% / 0.1;
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 55%), hsl(217 91% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220 20% 95%), hsl(220 20% 98%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 20% 98% / 0.8), hsl(220 20% 98% / 0.6));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  /* Glassmorphism Card */
+  .glass-card {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* Hero Gradient Overlay */
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  /* Smooth Transitions */
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .transition-spring {
+    transition: var(--transition-spring);
+  }
+
+  /* Hover Effects */
+  .hover-glow:hover {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Text Utilities */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
