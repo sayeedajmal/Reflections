@@ -42,7 +42,7 @@ export default function PostDetail() {
       setPost(postData);
     } catch (error: any) {
       console.error("Failed to load post:", error);
-      setError(error.response?.status === 404 ? "Post not found" : "Failed to load post");
+      setError(error.response.data?.status === 404 ? "Post not found" : "Failed to load post");
     } finally {
       setIsLoading(false);
     }

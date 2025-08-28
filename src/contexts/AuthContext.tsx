@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout();
         return;
       }
-      
+
       const userId = decoded.id;
       if (!userId) {
         logout();
@@ -74,7 +74,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const { accessToken, refreshToken, myProfile } = await authApi.login({ email, password });
-      
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('userEmail', myProfile.email);
@@ -86,10 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "You have been successfully logged in.",
       });
     } catch (error: any) {
-      console.error('Login failed:', error.response);
       toast({
         title: "Login failed",
-        description: error.response?.data?.message || "An unknown error occurred.",
+        description: error.response.data?.message,
         variant: "destructive",
       });
       throw error;
@@ -105,7 +103,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }) => {
     try {
       const { accessToken, refreshToken, myProfile } = await authApi.signup(userData);
-      
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('userEmail', myProfile.email);
@@ -117,10 +114,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Welcome to Reflections. Start writing your first post!",
       });
     } catch (error: any) {
-      console.error('Signup failed:', error.response);
       toast({
         title: "Signup failed",
-        description: error.response?.data?.message || "An unknown error occurred. Please try again.",
+        description: error.response.data?.message,
         variant: "destructive",
       });
       throw error;
