@@ -3,7 +3,7 @@ import api from '@/lib/api';
 export interface User {
   id: string;
   firstName: string;
-  lastName: string;
+  lastName:string;
   email: string;
   username: string;
   avatarUrl?: string;
@@ -28,17 +28,18 @@ export interface SignupRequest {
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
+  myProfile: User;
 }
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await api.post('/auth/login', credentials);
-    return response;
+    return response.data.data;
   },
 
   async signup(userData: SignupRequest): Promise<AuthResponse> {
     const response = await api.post('/auth/signup', userData);
-    return response;
+    return response.data.data;
   },
 
   async refreshToken(refreshToken: string, email: string): Promise<AuthResponse> {
@@ -46,18 +47,18 @@ export const authApi = {
       refreshToken,
       email,
     });
-    return response;
+    return response.data.data;
   },
 };
 
 export const userApi = {
   async getUser(id: string): Promise<User> {
     const response = await api.get(`/users/id/${id}`);
-    return response.data;
+    return response.data.data;
   },
 
   async updateProfile(userData: Partial<User>): Promise<User> {
     const response = await api.post('/users/update', userData);
-    return response.data;
+    return response.data.data;
   },
 };

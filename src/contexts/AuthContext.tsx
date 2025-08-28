@@ -2,8 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { authApi, userApi, type User } from '@/lib/auth-api';
 import { useToast } from '@/hooks/use-toast';
-import { log } from 'util';
-import { log } from 'console';
+
+interface DecodedToken {
+  id: string;
+  sub: string;
+  username: string;
+  exp: number;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -34,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const checkAuth = async () => {
+    setIsLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
       if (!token) {
@@ -41,9 +47,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const decoded: any = jwtDecode(token);
-      const userId = decoded.sub || decoded.id;
+      const decoded: DecodedToken = jwtDecode(token);
+
+      // Check if token is expired
+      if (decoded.exp * 1000 < Date.now()) {
+        logout();
+        return;
+      }
       
+      const userId = decoded.id;
       if (!userId) {
         logout();
         return;
@@ -61,18 +73,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const test= await authApi.login({ email, password });
-      console.log("HELLLLLLLLLLLo",test)
-      const { accessToken, refreshToken } = test;
+      const { accessToken, refreshToken, myProfile } = await authApi.login({ email, password });
+      
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userEmail', myProfile.email);
 
-      const decoded: any = jwtDecode(accessToken);
-      const userId = decoded.sub || decoded.id;
-      
-      const userData = await userApi.getUser(userId);
-      setUser(userData);
+      setUser(myProfile);
 
       toast({
         title: "Welcome back!",
@@ -97,17 +104,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string;
   }) => {
     try {
-      const { accessToken, refreshToken } = await authApi.signup(userData);
+      const { accessToken, refreshToken, myProfile } = await authApi.signup(userData);
       
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('userEmail', userData.email);
+      localStorage.setItem('userEmail', myProfile.email);
 
-      const decoded: any = jwtDecode(accessToken);
-      const userId = decoded.sub || decoded.id;
-      
-      const userProfile = await userApi.getUser(userId);
-      setUser(userProfile);
+      setUser(myProfile);
 
       toast({
         title: "Account created!",
@@ -129,10 +132,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userEmail');
     setUser(null);
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
   };
 
   return (

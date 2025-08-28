@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { toast } from '@/hooks/use-toast';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://reflections-backend-g9jc.onrender.com';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -29,6 +30,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Check for token expiration error and that we haven't already retried
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -42,19 +44,32 @@ api.interceptors.response.use(
             email,
           });
 
-          const { accessToken, refreshToken: newRefreshToken } = response.data;
+          const { accessToken, refreshToken: newRefreshToken } = response.data.data;
           
           localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('refreshToken', newRefreshToken);
           
+          // Update the authorization header for the original request and retry
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return api(originalRequest);
+        } else {
+            // If no refresh token, logout
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userEmail');
+            window.location.href = '/login';
         }
       } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userEmail');
         window.location.href = '/login';
+        toast({
+          title: "Session Expired",
+          description: "Please log in again.",
+          variant: "destructive",
+        });
       }
     }
 

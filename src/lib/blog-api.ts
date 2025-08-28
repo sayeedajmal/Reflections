@@ -32,34 +32,34 @@ export interface CreatePostRequest {
   featuredImageUrl?: string;
 }
 
-export interface UpdatePostRequest extends CreatePostRequest {
+export interface UpdatePostRequest extends Partial<CreatePostRequest> {
   id: string;
 }
 
 export const blogApi = {
   async getAllPosts(): Promise<BlogPost[]> {
     const response = await api.get('/api/blogposts');
-    return response.data;
+    return response.data.data;
   },
 
   async getPost(id: string): Promise<BlogPost> {
     const response = await api.get(`/api/blogposts/${id}`);
-    return response.data;
+    return response.data.data;
   },
 
   async getPostsByAuthor(authorId: string): Promise<BlogPost[]> {
     const response = await api.get(`/api/blogposts/author/${authorId}`);
-    return response.data;
+    return response.data.data;
   },
 
   async createPost(postData: CreatePostRequest): Promise<BlogPost> {
     const response = await api.post('/api/blogposts', postData);
-    return response.data;
+    return response.data.data;
   },
 
   async updatePost(id: string, postData: UpdatePostRequest): Promise<BlogPost> {
     const response = await api.put(`/api/blogposts/${id}`, postData);
-    return response.data;
+    return response.data.data;
   },
 
   async deletePost(id: string): Promise<void> {

@@ -45,7 +45,7 @@ export default function CreateEditPost() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [post, setPost] = useState<Partial<BlogPost> | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -95,7 +95,7 @@ export default function CreateEditPost() {
     setExcerpt(generatedExcerpt + (text.length > 150 ? '...' : ''));
   };
 
-  const saveDraft = async () => {
+  const handleSave = async (status: PostStatus) => {
     if (!title.trim()) {
       toast({
         title: "Title required",
@@ -104,91 +104,59 @@ export default function CreateEditPost() {
       });
       return;
     }
+    
+    if(status === PostStatus.PUBLISHED && !content.trim()) {
+        toast({
+            title: "Content required",
+            description: "Please enter content for your post to publish.",
+            variant: "destructive"
+        });
+        return;
+    }
 
-    setIsSaving(true);
+    if (status === PostStatus.DRAFT) setIsSaving(true);
+    if (status === PostStatus.PUBLISHED) setIsPublishing(true);
+
     try {
       const postData = {
         title: title.trim(),
         content,
         excerpt: excerpt.trim() || undefined,
-        status: PostStatus.DRAFT,
+        status,
         featuredImageUrl: featuredImageUrl.trim() || undefined,
       };
 
       if (isEditing && id) {
-        await blogApi.updatePost(id, { id, ...postData });
+        const updatedPost = await blogApi.updatePost(id, { id, ...postData });
+        setPost(updatedPost);
         toast({
-          title: "Draft saved",
-          description: "Your changes have been saved as a draft.",
+          title: status === PostStatus.PUBLISHED ? "Post published" : "Draft saved",
+          description: `Your post has been successfully ${status === PostStatus.PUBLISHED ? 'published' : 'saved'}.`,
         });
+        if(status === PostStatus.PUBLISHED) {
+          navigate(`/posts/${updatedPost.id}`);
+        }
       } else {
         const newPost = await blogApi.createPost(postData);
         toast({
-          title: "Draft created",
-          description: "Your post has been saved as a draft.",
+          title: status === PostStatus.PUBLISHED ? "Post created" : "Draft created",
+          description: `Your post has been successfully ${status === PostStatus.PUBLISHED ? 'published' : 'created'}.`,
         });
         navigate(`/dashboard/edit/${newPost.id}`);
       }
-    } catch (error) {
-      console.error("Failed to save draft:", error);
+    } catch (error: any) {
+      console.error(`Failed to ${status === PostStatus.PUBLISHED ? 'publish' : 'save'} post:`, error);
       toast({
         title: "Error",
-        description: "Failed to save your draft. Please try again.",
+        description: error.response?.data?.message || `Failed to save your post. Please try again.`,
         variant: "destructive",
       });
     } finally {
-      setIsSaving(false);
+      if (status === PostStatus.DRAFT) setIsSaving(false);
+      if (status === PostStatus.PUBLISHED) setIsPublishing(false);
     }
   };
 
-  const publishPost = async () => {
-    if (!title.trim() || !content.trim()) {
-      toast({
-        title: "Content required",
-        description: "Please enter both a title and content for your post.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsPublishing(true);
-    try {
-      const postData = {
-        title: title.trim(),
-        content,
-        excerpt: excerpt.trim() || undefined,
-        status: PostStatus.PUBLISHED,
-        featuredImageUrl: featuredImageUrl.trim() || undefined,
-      };
-
-      if (isEditing && id) {
-        await blogApi.updatePost(id, { id, ...postData });
-        toast({
-          title: "Post published",
-          description: "Your post has been published successfully!",
-        });
-      } else {
-        const newPost = await blogApi.createPost(postData);
-        toast({
-          title: "Post published",
-          description: "Your post has been published successfully!",
-        });
-        navigate(`/posts/${newPost.id}`);
-        return;
-      }
-      
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Failed to publish post:", error);
-      toast({
-        title: "Error",
-        description: "Failed to publish your post. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsPublishing(false);
-    }
-  };
 
   const deletePost = async () => {
     if (!isEditing || !id) return;
@@ -201,20 +169,16 @@ export default function CreateEditPost() {
         description: "Your post has been deleted successfully.",
       });
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to delete post:", error);
       toast({
         title: "Error",
-        description: "Failed to delete the post. Please try again.",
+        description: error.response?.data?.message || "Failed to delete the post. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  const stripHtmlTags = (html: string) => {
-    return html.replace(/<[^>]*>/g, '');
   };
 
   if (isLoading) {
@@ -292,7 +256,7 @@ export default function CreateEditPost() {
             </CardHeader>
             <CardContent className="space-y-3">
               <Button 
-                onClick={publishPost}
+                onClick={() => handleSave(PostStatus.PUBLISHED)}
                 disabled={isPublishing || !title.trim() || !content.trim()}
                 className="w-full bg-gradient-primary hover:opacity-90"
               >
@@ -311,7 +275,7 @@ export default function CreateEditPost() {
               
               <Button 
                 variant="outline" 
-                onClick={saveDraft}
+                onClick={() => handleSave(PostStatus.DRAFT)}
                 disabled={isSaving || !title.trim()}
                 className="w-full"
               >
@@ -354,6 +318,7 @@ export default function CreateEditPost() {
                     onClick={generateExcerpt}
                     className="rounded-l-none border-l-0"
                     size="sm"
+                    title="Generate Excerpt"
                   >
                     <Sparkles className="h-4 w-4" />
                   </Button>
