@@ -54,13 +54,20 @@ export async function signupAction(
     if (!response.ok || (result.status && result.status >= 400)) {
       return { error: result.message || "An unknown API error occurred." };
     }
+    
+    // Set cookies upon successful signup
+    const { myProfile, accessToken, refreshToken } = result.data;
+    const cookieOptions = { req: cookies(), res: undefined, httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' as const, maxAge: 60 * 60 * 24 * 7 };
+    
+    setCookie('user', JSON.stringify(myProfile), cookieOptions);
+    setCookie('accessToken', accessToken, cookieOptions);
+    setCookie('refreshToken', refreshToken, cookieOptions);
 
     return { message: result.message, data: result.data };
 
   } catch (error) {
     console.error("Signup Action Error:", error);
     if (error instanceof Error) {
-        // This will catch network errors (e.g., server is down)
         return { error: "Could not connect to the authentication service. Please try again later." };
     }
     return { error: "An unexpected error occurred during signup." };
@@ -99,19 +106,17 @@ export async function loginAction(
     
     // Set cookies upon successful login
     const { myProfile, accessToken, refreshToken } = result.data;
-    const cookieOptions = { req: cookies(), res: undefined, secure: true, sameSite: 'strict', maxAge: 60 * 60 * 24 * 7 };
+    const cookieOptions = { req: cookies(), res: undefined, httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' as const, maxAge: 60 * 60 * 24 * 7 };
     
     setCookie('user', JSON.stringify(myProfile), cookieOptions);
     setCookie('accessToken', accessToken, cookieOptions);
     setCookie('refreshToken', refreshToken, cookieOptions);
-
 
     return { message: "Login successful!", data: result.data };
     
   } catch (error) {
     console.error("Login Action Error:", error);
     if (error instanceof Error) {
-        // This will catch network errors (e.g., server is down)
         return { error: "Could not connect to the authentication service. Please try again later." };
     }
     return { error: "An unexpected error occurred during login." };

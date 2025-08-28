@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const storedAccess = getCookie('accessToken');
       const storedRefresh = getCookie('refreshToken');
       
-      const storedUser = storedUserCookie ? JSON.parse(decodeURIComponent(storedUserCookie)) : null;
+      const storedUser = storedUserCookie ? JSON.parse(storedUserCookie) : null;
 
       if (storedUser && storedAccess && storedRefresh) {
         setUser(storedUser);
@@ -58,10 +58,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (userData: User, access: string, refresh: string) => {
-    const cookieOptions = { secure: true, sameSite: 'strict', maxAge: 60 * 60 * 24 * 7 };
-    const userString = encodeURIComponent(JSON.stringify(userData));
+    const cookieOptions = { secure: process.env.NODE_ENV === 'production', sameSite: 'strict' as const, maxAge: 60 * 60 * 24 * 7 };
     
-    setCookie('user', userString, cookieOptions);
+    setCookie('user', JSON.stringify(userData), cookieOptions);
     setCookie('accessToken', access, cookieOptions);
     setCookie('refreshToken', refresh, cookieOptions);
 

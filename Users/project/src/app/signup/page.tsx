@@ -1,19 +1,24 @@
 "use client";
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-
-import { signupAction, type AuthState } from '@/app/auth/actions';
-import { useAuth } from '@/context/auth-context';
-import { useToast } from '@/hooks/use-toast';
-
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Lock, Mail, User as UserIcon } from 'lucide-react';
+import Link from "next/link";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signupAction, type AuthState } from "@/app/auth/actions";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
 
 
 const initialState: AuthState = {};
@@ -21,19 +26,24 @@ const initialState: AuthState = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" className="w-full" aria-disabled={pending}>
-      {pending ? 'Creating Account...' : 'Create Account'}
+    <Button type="submit" className="w-full" disabled={pending}>
+       {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
+        </>
+      ) : (
+        "Create an account"
+      )}
     </Button>
   );
 }
 
 export default function SignupPage() {
-  const [state, formAction] = useFormState(signupAction, initialState);
-  const [showPassword, setShowPassword] = useState(false);
+  const [state, formAction] = useActionState(signupAction, initialState);
+  const router = useRouter();
   const { toast } = useToast();
   const { login } = useAuth();
-  const router = useRouter();
-  
+
   useEffect(() => {
     if (state.message && state.data) {
       toast({
@@ -53,91 +63,58 @@ export default function SignupPage() {
   }, [state, router, toast, login]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Create an Account
-          </CardTitle>
+    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
+      <Card className="mx-auto max-w-sm w-full">
+        <CardHeader>
+          <CardTitle className="text-xl font-headline">Sign Up</CardTitle>
           <CardDescription>
-            Join our community of writers and creators.
+            Enter your information to create an account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={formAction} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" name="firstName" placeholder="John" required />
+          <form action={formAction}>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input id="username" name="username" placeholder="SayeedAjmal" required />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" name="lastName" placeholder="Doe" required />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="firstName">First name</Label>
+                  <Input id="firstName" name="firstName" placeholder="Sayeed" required />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="lastName">Last name</Label>
+                  <Input id="lastName" name="lastName" placeholder="Ajmal" required />
+                </div>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <div className="relative">
-                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="username"
-                  name="username"
-                  placeholder="johndoe"
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="name@example.com"
+                  placeholder="m@example.com"
                   required
-                  className="pl-10"
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  className="pl-10 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" name="password" type="password" required />
               </div>
+              <SubmitButton />
+              <Button variant="outline" className="w-full" type="button">
+                Sign up with Google
+              </Button>
             </div>
-            <SubmitButton />
           </form>
-        </CardContent>
-        <CardFooter className="text-center text-sm">
-          <p>
-            Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-primary hover:underline">
-              Sign in
+          <div className="mt-4 text-center text-sm">
+            Already have an account?{" "}
+            <Link href="/login" className="underline">
+              Login
             </Link>
-          </p>
-        </CardFooter>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );
