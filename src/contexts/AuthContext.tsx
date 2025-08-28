@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Login failed:', error.response);
       toast({
         title: "Login failed",
-        description: error.response?.data?.message || "Invalid email or password",
+        description: error.response?.data?.Message || "An unknown error occurred.",
         variant: "destructive",
       });
       throw error;
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Signup failed:', error.response);
       toast({
         title: "Signup failed",
-        description: error.response?.data?.message || "Something went wrong. Please try again.",
+        description: error.response?.data?.Message || "An unknown error occurred. Please try again.",
         variant: "destructive",
       });
       throw error;
