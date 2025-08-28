@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Welcome to Reflections. Start writing your first post!",
       });
     } catch (error: any) {
-      console.error('Signup failed:', error);
+      console.error('Signup failed:', error.response);
       toast({
         title: "Signup failed",
         description: error.response?.data?.message || "Something went wrong. Please try again.",
