@@ -1,5 +1,7 @@
 package com.strong.reflections.Security;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,7 +55,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("https://9000-firebase-studio-1755002866603.cluster-a6zx3cwnb5hnuwbgyxmofxpkfe.cloudworkstations.dev");
+        configuration.setAllowedOrigins(Arrays.asList(
+            "https://9000-firebase-studio-1755002866603.cluster-a6zx3cwnb5hnuwbgyxmofxpkfe.cloudworkstations.dev",
+            "https://6000-firebase-studio-1755002866603.cluster-a6zx3cwnb5hnuwbgyxmofxpkfe.cloudworkstations.dev",
+            "http://localhost:9002"));
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
